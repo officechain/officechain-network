@@ -1,0 +1,30 @@
+{
+  "name": "officechain-network",
+  "version": "0.0.1",
+  "description": "Time tracking powered by blockchain",
+  "homepage": "https://officechain.org",
+  "license": "GPL-3.0",
+  "contributors": [
+    "Jan Steinbruecker <jst@linux.com>",
+    "Marcel Hahn <mh@hahnpro.com>"
+  ],
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/officechain/officechain-network.git"
+  },
+  "scripts": {
+    "test": "mocha --recursive"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "composer-admin": "latest",
+    "composer-client": "latest",
+    "composer-connector-embedded": "latest",
+    "chai": "latest",
+    "eslint": "latest",
+    "istanbul": "latest",
+    "mkdirp": "latest",
+    "mocha": "latest"
+  }
+}
