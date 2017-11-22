@@ -1,19 +1,86 @@
-/**
- * Write your model definitions here
- */
-
 namespace org.officechain
 
-participant User identified by email {
+/**
+ * OfficeChain network model
+ */
+
+abstract asset BaseAsset identified by aId {
+  o String aId
+}
+
+asset Task extends BaseAsset {
+  o String name
+}
+
+asset Project extends Task {
+  --> ProjectManager[] manager
+  --> Task[] tasks
+  --> User[] members
+  --> ProjectRole[] roles
+  --> ProjectRoleMapping roleMappings
+}
+
+asset Company extends BaseAsset {
+  --> Project[] activeProjects
+  --> User[] employees
+  --> CompanyManager[] manager
+}
+
+asset ProjectRole extends BaseAsset {
+    o String name
+    o Double rate
+}
+
+asset ProjectRoleMapping extends BaseAsset {
+  --> ProjectRole role
+  --> User user
+}
+
+participant User identified by uId{
+  o String uId
+  o String name
   o String email
 }
 
-asset SampleAsset identified by assetId {
-  o String assetId
-  o String value
+participant ProjectManager extends User{
+
 }
 
-transaction ChangeAssetValue {
-  o String newValue
-  --> Asset relatedAsset
+participant CompanyManager extends ProjectManager{
+
+}
+
+asset Time extends BaseAsset {
+  o Double duration //in hours
+  o Long startDate //timestamp
+  o Long endDate //timestamp
+}
+
+transaction startWorkingOnProjectTask extends Work{
+  --> Task task
+}
+
+transaction stopWorkingOnProjectTask extends Work{
+  --> Task task
+  --> ProjectRole role
+}
+
+transaction startWorkingForCompany extends Work{
+  --> Company company
+}
+
+transaction stopWorkingForCompany extends Work{
+  --> Company company
+}
+
+transaction Work {
+  --> Time time
+  o WorkStaus status
+}
+
+enum WorkStaus {
+  o STARTET
+  o ENDET
+  o ACCEPTED
+  o REJECTED
 }
