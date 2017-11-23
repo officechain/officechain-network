@@ -4,83 +4,157 @@ namespace org.officechain
  * OfficeChain network model
  */
 
-abstract asset BaseAsset identified by aId {
-  o String aId
+//
+// PARTICIPANTS
+
+abstract participant Person {
+  o String title optional
+  o String firstName optional
+  o String lastName optional
+  o ContactDetails contactDetails optional
 }
 
-asset Task extends BaseAsset {
-  o String name
+abstract participant Business {
+  o String name optional
+  o ContactDetails contactDetails optional
+  --> Manager[] managers optional
+  --> Employee[] employees optional
 }
 
-asset Project extends Task {
-  --> ProjectManager[] manager
-  --> Task[] tasks
-  --> User[] members
-  --> ProjectRole[] roles
-  --> ProjectRoleMapping roleMappings
+concept ContactDetails {
+  o String email optional
+  o String phone optional
+  o Address address optional
 }
 
-asset Company extends BaseAsset {
-  --> Project[] activeProjects
-  --> User[] employees
-  --> CompanyManager[] manager
+concept Address {
+  o String street optional
+  o String postalCode optional
+  o String city optional
+  o String country optional
+}
+
+abstract participant Worker identified by workerId extends Person {
+  o String workerId
+}
+
+participant Employee extends Worker {
+  --> Company company optional
+}
+
+participant Manager extends Employee {}
+participant Contractor extends Worker {}
+
+participant Company identified by companyId extends Business {
+  o String companyId
+  --> Project[] projects optional
+}
+
+//
+// ASSETS
+
+abstract asset BaseAsset identified by assetId {
+  o String assetId
+}
+
+asset Work extends BaseAsset {
+  o Double duration optional
+  o Long startDate optional
+  o Long endDate optional
+  --> Worker worker
+  --> Company company optional
+  --> Assignment assignment optional
+  --> Manager authoriser optional
+}
+
+asset Assignment identified by assignmentId {
+  o String assignmentId
+  o AssignmentDetails details optional
+  o AssignmentStaus status optional
+  --> Business[] principals optional
+  --> Business[] agents optional
+}
+
+asset Project extends Assignment {
+  --> Manager[] managers optional
+  --> Employee[] team optional
+  --> Task[] tasks optional
+  --> ProjectRole[] roles optional
+  --> ProjectRoleMapping[] roleMappings optional
+}
+
+asset Task extends Assignment {
+  --> Worker[] assignees optional
 }
 
 asset ProjectRole extends BaseAsset {
-    o String name
-    o Double rate
+  o String name
+  o String description optional
+  o Double rate optional
 }
 
 asset ProjectRoleMapping extends BaseAsset {
   --> ProjectRole role
-  --> User user
+  --> Worker worker
 }
 
-participant User identified by uId{
-  o String uId
-  o String name
-  o String email
+enum AssignmentStaus {
+  o CANCELED
+  o COMPLETED
+  o CREATED
+  o STARTED
 }
 
-participant ProjectManager extends User{
-
+concept AssignmentDetails {
+  o String description optional
+  o Long dueDate optional
+  o Double workEstimate optional
 }
 
-participant CompanyManager extends ProjectManager{
+//
+// TRANSACTIONS
 
+abstract transaction WorkerTransaction {
+  o String workerId
 }
 
-asset Time extends BaseAsset {
-  o Double duration //in hours
-  o Long startDate //timestamp
-  o Long endDate //timestamp
+transaction ProjectTransaction extends WorkerTransaction {
+  --> Project project
 }
 
-transaction startWorkingOnProjectTask extends Work{
+transaction TaskTransaction extends WorkerTransaction {
   --> Task task
 }
 
-transaction stopWorkingOnProjectTask extends Work{
-  --> Task task
-  --> ProjectRole role
-}
-
-transaction startWorkingForCompany extends Work{
+transaction CompanyTransaction extends WorkerTransaction {
   --> Company company
 }
 
-transaction stopWorkingForCompany extends Work{
-  --> Company company
+transaction AssignProject extends ProjectTransaction {}
+transaction UnassignProject extends ProjectTransaction {}
+transaction AddAsProjectManager extends ProjectTransaction {}
+transaction RemoveAsProjectManager extends ProjectTransaction {}
+
+transaction AssignTask extends TaskTransaction {}
+transaction UnassignTask extends TaskTransaction {}
+transaction CompleteTask extends TaskTransaction {}
+transaction CancelTask extends TaskTransaction {}
+
+transaction AddToCompany extends CompanyTransaction {}
+transaction RemoveFromCompany extends CompanyTransaction {}
+
+transaction LogWorkForProject extends ProjectTransaction {
+  o Double duration
 }
 
-transaction Work {
-  --> Time time
-  o WorkStaus status
+transaction LogWorkForTask extends TaskTransaction {
+  o Double duration
 }
 
-enum WorkStaus {
-  o STARTET
-  o ENDET
-  o ACCEPTED
-  o REJECTED
+transaction LogWorkForCompany extends CompanyTransaction {
+  o Long startDate
+  o Long endDate
+  o Double duration optional
 }
+
+transaction SetupDemo {}
