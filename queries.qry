@@ -1,0 +1,7 @@
+
+query selectEmployeesByCompany {
+  description: "Select all employees based on their company"
+  statement:
+      SELECT org.officechain.Employee
+          WHERE (company == _$company)
+}
